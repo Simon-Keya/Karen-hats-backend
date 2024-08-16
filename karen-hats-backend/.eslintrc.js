@@ -12,7 +12,11 @@ module.exports = {
   ],
   root: true,
   env: {
-    node: true,
+    node: true,{
+      "rules": {
+        "linebreak-style": ["error", "unix"]
+      }
+    }
     jest: true,
   },
   ignorePatterns: ['.eslintrc.js'],
