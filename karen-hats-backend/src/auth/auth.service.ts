@@ -24,25 +24,35 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto): Promise<{ accessToken: string }> {
-    const user = await this.validateUser(loginDto.username, loginDto.password);
-    const payload: JwtPayload = { username: user.username, sub: user.id.toString() }; // Convert user.id to string
+    const user = await this.validateUserByCredentials(loginDto.username, loginDto.password);
+    const payload: JwtPayload = { username: user.username, sub: user.id.toString() };
     return {
       accessToken: this.jwtService.sign(payload),
     };
   }
 
-  async validateUser(username: string, password: string): Promise<User> {
+  // This method validates user by username and password
+  async validateUserByCredentials(username: string, password: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { username } });
     if (user && (await compare(password, user.password))) {
       return user;
     }
-    throw new UnauthorizedException();
+    throw new UnauthorizedException('Invalid credentials');
+  }
+
+  // This method validates user by the JWT payload
+  async validateUserByPayload(payload: JwtPayload): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { username: payload.username } });
+    if (user) {
+      return user;
+    }
+    throw new UnauthorizedException('User not found');
   }
 
   async changePassword(userId: number, changePasswordDto: ChangePasswordDto): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id: userId }); // Use findOneBy instead of findOne
+    const user = await this.userRepository.findOneBy({ id: userId });
     if (!user || !(await compare(changePasswordDto.currentPassword, user.password))) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Current password is incorrect');
     }
     user.password = changePasswordDto.newPassword;
     return this.userRepository.save(user);

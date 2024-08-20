@@ -6,11 +6,11 @@ import { AuthService } from '../auth.service';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
-    super();
+    super(); // Configures the strategy to expect username and password by default
   }
 
   async validate(username: string, password: string): Promise<any> {
-    const user = await this.authService.validateUserByPassword(username, password);
+    const user = await this.authService.validateUserByCredentials(username, password);
     if (!user) {
       throw new UnauthorizedException();
     }

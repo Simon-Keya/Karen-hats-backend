@@ -40,8 +40,12 @@ export class ProductsService {
     return query.getMany();
   }
 
-  findOne(id: number) {
-    return this.productRepository.findOne(id);
+  async findOne(id: number) {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new NotFoundException(`Product #${id} not found`);
+    }
+    return product;
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {

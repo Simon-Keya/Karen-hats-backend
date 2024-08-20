@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order } from './entities/order.entity';
+import { Order } from './entity/order.entity';
 
 @Injectable()
 export class OrdersService {
@@ -15,11 +15,17 @@ export class OrdersService {
     return this.orderRepository.save(order);
   }
 
-  async updateOrderTracking(orderId: number, trackingNumber: string) {
-    const order = await this.orderRepository.findOne(orderId);
+  async findOne(orderId: number) {
+    // Fetch order by ID
+    const order = await this.orderRepository.findOne({ where: { id: orderId } });
     if (!order) {
       throw new NotFoundException(`Order #${orderId} not found`);
     }
+    return order;
+  }
+
+  async updateOrderTracking(orderId: number, trackingNumber: string) {
+    const order = await this.findOne(orderId); // Use the newly added findOne method
     order.trackingNumber = trackingNumber;
     return this.orderRepository.save(order);
   }
@@ -29,10 +35,7 @@ export class OrdersService {
   }
 
   async updateOrderStatus(orderId: number, status: string) {
-    const order = await this.orderRepository.findOne(orderId);
-    if (!order) {
-      throw new NotFoundException(`Order #${orderId} not found`);
-    }
+    const order = await this.findOne(orderId); // Use the newly added findOne method
     order.status = status;
     return this.orderRepository.save(order);
   }

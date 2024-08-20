@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import PayPalClient from '@paypal/checkout-server-sdk';
 import axios from 'axios';
 import Stripe from 'stripe';
+import { Order } from '../orders/entity/order.entity'; // Adjust import based on your structure
 import { OrdersService } from '../orders/orders.service';
 
 @Injectable()
@@ -21,15 +22,15 @@ export class PaymentsService {
     );
     this.paypalClient = new PayPalClient.core.PayPalHttpClient(environment);
 
-    // Initialize Stripe client
+    // Initialize Stripe client with a valid API version
     this.stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY'), {
-      apiVersion: '2022-11-15',
+      apiVersion: '2024-06-20', // Ensure this matches the required type
     });
   }
 
   async processPayPalPayment(orderId: number, paymentDetails: any) {
     try {
-      const order = await this.ordersService.findOne(orderId);
+      const order: Order = await this.ordersService.findOne(orderId);
 
       // Create PayPal order
       const request = new PayPalClient.orders.OrdersCreateRequest();
@@ -68,7 +69,7 @@ export class PaymentsService {
     try {
       const token = await this.getMpesaToken();
       const response = await axios.post(
-        this.configService.get('MPESA_API_URL') + '/mpesa/stkpush/v1/processrequest',
+        `${this.configService.get('MPESA_API_URL')}/mpesa/stkpush/v1/processrequest`,
         {
           BusinessShortCode: this.configService.get('MPESA_SHORTCODE'),
           Password: this.generateMpesaPassword(),
@@ -108,7 +109,7 @@ export class PaymentsService {
 
   async processStripePayment(orderId: number, token: string) {
     try {
-      const order = await this.ordersService.findOne(orderId);
+      const order: Order = await this.ordersService.findOne(orderId);
 
       // Create a charge with Stripe
       const charge = await this.stripe.charges.create({
@@ -139,7 +140,7 @@ export class PaymentsService {
 
   private async getMpesaToken() {
     const response = await axios.get(
-      this.configService.get('MPESA_API_URL') + '/oauth/v1/generate?grant_type=client_credentials',
+      `${this.configService.get('MPESA_API_URL')}/oauth/v1/generate?grant_type=client_credentials`,
       {
         auth: {
           username: this.configService.get('MPESA_CONSUMER_KEY'),
