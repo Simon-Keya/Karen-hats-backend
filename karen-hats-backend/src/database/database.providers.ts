@@ -1,25 +1,22 @@
-import { Provider } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config'; // Make sure this is imported
 import { DataSource } from 'typeorm';
-import { ConfigService } from '../config/config.service';
 
-export const DatabaseProviders: Provider[] = [
+export const DatabaseProviders = [
   {
     provide: 'DATABASE_CONNECTION',
-    inject: [ConfigService],
     useFactory: async (configService: ConfigService) => {
       const dataSource = new DataSource({
         type: 'postgres',
-        host: configService.getDatabaseHost(),
-        port: configService.getDatabasePort(),
-        username: configService.getDatabaseUser(),
-        password: configService.getDatabasePassword(),
-        database: configService.getDatabaseName(),
-        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        synchronize: false,
-        migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
+        host: configService.get('DATABASE_HOST'),
+        port: +configService.get('DATABASE_PORT'),
+        username: configService.get('DATABASE_USER'),
+        password: configService.get('DATABASE_PASSWORD'),
+        database: configService.get('DATABASE_NAME'),
+        synchronize: true,
       });
 
       return dataSource.initialize();
     },
+    inject: [ConfigService], // Ensure ConfigService is injected
   },
 ];
