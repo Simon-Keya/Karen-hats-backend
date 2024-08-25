@@ -6,12 +6,9 @@ dotenv.config();
 
 @Injectable()
 export class ConfigService {
-  // Storing environment variables in a read-only object
-  private readonly envConfig: { [key: string]: string | undefined } = process.env;
-
   // Generic method to get any environment variable
   get(key: string): string | undefined {
-    return this.envConfig[key];
+    return process.env[key];
   }
 
   // Get the application port
@@ -22,28 +19,28 @@ export class ConfigService {
 
   // Get the database host
   getDatabaseHost(): string {
-    return this.get('DATABASE_HOST') ?? 'localhost'; // Match the variable name
+    return this.get('DATABASE_HOST') ?? 'localhost'; // Default to 'localhost' if undefined
   }
 
   // Get the database port
   getDatabasePort(): number {
-    const port = this.get('DATABASE_PORT'); // Match the variable name
+    const port = this.get('DATABASE_PORT');
     return port ? Number(port) : 5432; // Default to port 5432 if undefined
   }
 
   // Get the database username
   getDatabaseUser(): string {
-    return this.get('DATABASE_USER') ?? 'postgres'; // Match the variable name
+    return this.get('DATABASE_USER') ?? 'postgres'; // Default to 'postgres' if undefined
   }
 
   // Get the database password
   getDatabasePassword(): string {
-    return this.get('DATABASE_PASSWORD') ?? ''; // Match the variable name
+    return this.get('DATABASE_PASSWORD') ?? ''; // Default to an empty string if undefined
   }
 
   // Get the database name
   getDatabaseName(): string {
-    return this.get('DATABASE_NAME') ?? 'test'; // Match the variable name
+    return this.get('DATABASE_NAME') ?? 'test'; // Default to 'test' if undefined
   }
 
   // Get the JWT secret key
