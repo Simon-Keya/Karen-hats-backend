@@ -8,7 +8,7 @@ dotenv.config();
 export class ConfigService {
   // Generic method to get any environment variable
   get(key: string): string | undefined {
-    return process.env[key];
+    return process.env[key]?.trim(); // Ensure there are no leading/trailing spaces
   }
 
   // Get the application port
@@ -35,7 +35,11 @@ export class ConfigService {
 
   // Get the database password
   getDatabasePassword(): string {
-    return this.get('DATABASE_PASSWORD') ?? ''; // Default to an empty string if undefined
+    const password = this.get('DATABASE_PASSWORD');
+    if (!password) {
+      throw new Error('DATABASE_PASSWORD is not defined in the environment variables');
+    }
+    return password;
   }
 
   // Get the database name

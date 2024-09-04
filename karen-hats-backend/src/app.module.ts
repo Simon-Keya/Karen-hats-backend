@@ -19,11 +19,11 @@ import { WebsocketsModule } from './websockets/websockets.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      host: process.env.DATABASE_HOST,  // Corrected
+      port: +process.env.DATABASE_PORT,  // Corrected
+      username: process.env.DATABASE_USER,  // Corrected
+      password: process.env.DATABASE_PASSWORD,  // Corrected
+      database: process.env.DATABASE_NAME,  // Corrected
       autoLoadEntities: true,
       synchronize: true,
     }),

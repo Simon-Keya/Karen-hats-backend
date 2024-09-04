@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import PayPalClient from '@paypal/checkout-server-sdk';
+import * as paypal from '@paypal/checkout-server-sdk'; // Use the correct import
 import axios from 'axios';
 import Stripe from 'stripe';
 import { Order } from '../orders/entity/order.entity'; // Adjust import based on your structure
@@ -8,7 +8,7 @@ import { OrdersService } from '../orders/orders.service';
 
 @Injectable()
 export class PaymentsService {
-  private paypalClient: PayPalClient.core.PayPalHttpClient;
+  private paypalClient: paypal.core.PayPalHttpClient;
   private stripe: Stripe;
 
   constructor(
@@ -16,11 +16,11 @@ export class PaymentsService {
     private readonly ordersService: OrdersService,
   ) {
     // Initialize PayPal client
-    const environment = new PayPalClient.core.SandboxEnvironment(
+    const environment = new paypal.core.SandboxEnvironment(
       this.configService.get('PAYPAL_CLIENT_ID'),
       this.configService.get('PAYPAL_CLIENT_SECRET'),
     );
-    this.paypalClient = new PayPalClient.core.PayPalHttpClient(environment);
+    this.paypalClient = new paypal.core.PayPalHttpClient(environment);
 
     // Initialize Stripe client with a valid API version
     this.stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY'), {
@@ -33,7 +33,7 @@ export class PaymentsService {
       const order: Order = await this.ordersService.findOne(orderId);
 
       // Create PayPal order
-      const request = new PayPalClient.orders.OrdersCreateRequest();
+      const request = new paypal.orders.OrdersCreateRequest();
       request.requestBody({
         intent: 'CAPTURE',
         purchase_units: [{
