@@ -1,4 +1,4 @@
-import { ConfigService } from '@nestjs/config'; // Make sure this is imported
+import { ConfigService } from '@nestjs/config'; // Ensure this is imported
 import { DataSource } from 'typeorm';
 
 export const DatabaseProviders = [
@@ -12,7 +12,10 @@ export const DatabaseProviders = [
         username: configService.get('DATABASE_USER'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
-        synchronize: true,
+        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+        migrations: [__dirname + '/../migrations/*{.ts,.js}'], // Add migration folder
+        synchronize: false, // Disable synchronize in favor of migrations
+        migrationsRun: true, // Automatically run migrations on application start
       });
 
       return dataSource.initialize();
