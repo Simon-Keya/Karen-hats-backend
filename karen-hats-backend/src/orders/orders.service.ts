@@ -10,33 +10,45 @@ export class OrdersService {
     private readonly orderRepository: Repository<Order>,
   ) {}
 
+  // Create a new order
   createOrder(orderData: Partial<Order>) {
     const order = this.orderRepository.create(orderData);
     return this.orderRepository.save(order);
   }
 
-  async findOne(orderId: number) {
-    // Fetch order by ID
+  // Find a single order by its ID
+  async findOne(orderId: number): Promise<Order> {
     const order = await this.orderRepository.findOne({ where: { id: orderId } });
     if (!order) {
-      throw new NotFoundException(`Order #${orderId} not found`);
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
     }
     return order;
   }
 
-  async updateOrderTracking(orderId: number, trackingNumber: string) {
-    const order = await this.findOne(orderId); // Use the newly added findOne method
+  // Update the tracking number of an order
+  async updateOrderTracking(orderId: number, trackingNumber: string): Promise<Order> {
+    const order = await this.findOne(orderId);
     order.trackingNumber = trackingNumber;
     return this.orderRepository.save(order);
   }
 
-  findAllOrders(userId: number) {
+  // Retrieve all orders for a specific user by user ID
+  async findAllOrders(userId: number): Promise<Order[]> {
     return this.orderRepository.find({ where: { user: { id: userId } } });
   }
 
-  async updateOrderStatus(orderId: number, status: string) {
-    const order = await this.findOne(orderId); // Use the newly added findOne method
+  // Update the status of an order
+  async updateOrderStatus(orderId: number, status: string): Promise<Order> {
+    const order = await this.findOne(orderId);
     order.status = status;
     return this.orderRepository.save(order);
+  }
+
+  // Delete an order by its ID
+  async deleteOrder(orderId: number): Promise<void> {
+    const result = await this.orderRepository.delete(orderId);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
+    }
   }
 }

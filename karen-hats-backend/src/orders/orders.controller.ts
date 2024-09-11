@@ -1,29 +1,45 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 
-ApiTags('Orders')
+@ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
+  // Create a new order
   @Post()
-  createOrder(@Body() orderData: any) {
+  async createOrder(@Body() orderData: any) {
     return this.ordersService.createOrder(orderData);
   }
 
+  // Update the tracking number for a specific order
   @Patch(':id/tracking')
-  updateTracking(@Param('id') id: string, @Body('trackingNumber') trackingNumber: string) {
+  async updateTracking(@Param('id') id: string, @Body('trackingNumber') trackingNumber: string) {
     return this.ordersService.updateOrderTracking(+id, trackingNumber);
   }
 
+  // Get all orders for a specific user by user ID
   @Get('user/:userId')
-  findAllOrders(@Param('userId') userId: string) {
+  async findAllOrders(@Param('userId') userId: string) {
     return this.ordersService.findAllOrders(+userId);
   }
 
+  // Update the status of a specific order
   @Patch(':id/status')
-  updateOrderStatus(@Param('id') id: string, @Body('status') status: string) {
+  async updateOrderStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.ordersService.updateOrderStatus(+id, status);
+  }
+
+  // Get a single order by its ID
+  @Get(':id')
+  async findOneOrder(@Param('id') id: string) {
+    return this.ordersService.findOne(+id);
+  }
+
+  // Delete an order by its ID
+  @Delete(':id')
+  async deleteOrder(@Param('id') id: string) {
+    return this.ordersService.deleteOrder(+id);
   }
 }

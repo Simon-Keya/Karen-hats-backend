@@ -1,6 +1,10 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ManageProductDto {
+  @IsOptional() // Optional for new product creation
+  @IsNumber()
+  readonly id?: number;
+
   @IsNotEmpty()
   @IsString()
   readonly name: string;
