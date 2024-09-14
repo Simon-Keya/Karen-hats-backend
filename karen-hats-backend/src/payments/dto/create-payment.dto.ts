@@ -11,5 +11,5 @@ export class CreatePaymentDto {
 
   @IsNotEmpty()
   @IsString()
-  readonly paymentMethod: string;
+  readonly paymentMethod: string;  // 'method' is now 'paymentMethod'
 }

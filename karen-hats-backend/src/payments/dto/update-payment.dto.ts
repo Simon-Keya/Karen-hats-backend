@@ -7,9 +7,9 @@ export class UpdatePaymentDto {
 
   @IsOptional()
   @IsString()
-  readonly paymentMethod?: string;
+  readonly paymentMethod?: string;  // 'method' is now 'paymentMethod'
 
   @IsOptional()
   @IsString()
-  readonly status?: string;
+  readonly status?: string;  // You might want to track the status of the payment (e.g., "Paid", "Pending", etc.)
 }

@@ -16,4 +16,8 @@ export class FilterProductsDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @IsOptional()  // Add this property
+  @IsString()
+  search?: string;  // Define the search property
 }

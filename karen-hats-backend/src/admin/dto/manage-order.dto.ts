@@ -1,12 +1,15 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ManageOrderDto {
   @IsNotEmpty()
-  @IsString()
-  id: number;
-  readonly status: string;
+  @IsNumber()
+  id: number;  // Use @IsNumber() instead of @IsString() for the ID if it's numeric.
 
-  @IsOptional() // Made optional in case it's not available initially
+  @IsNotEmpty()  // Adding this ensures that the status field must not be empty
   @IsString()
-  readonly trackingNumber?: string;
+  status: string;
+
+  @IsOptional()
+  @IsString()
+  trackingNumber?: string;  // Optional tracking number if available.
 }

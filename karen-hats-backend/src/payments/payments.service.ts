@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { OrdersService } from '../orders/orders.service';
+import { CreatePaymentDto } from './dto/create-payment.dto';
+import { UpdatePaymentDto } from './dto/update-payment.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -84,5 +86,35 @@ export class PaymentsService {
       ('0' + now.getMinutes()).slice(-2) +
       ('0' + now.getSeconds()).slice(-2)
     );
+  }
+
+  // Add 'create' method
+  async create(createPaymentDto: CreatePaymentDto) {
+    // Implement logic for creating a new payment
+    return { message: 'Payment created successfully', payment: createPaymentDto };
+  }
+
+  // Add 'findAll' method
+  async findAll() {
+    // Implement logic for retrieving all payments
+    return { message: 'All payments retrieved successfully' };
+  }
+
+  // Add 'findOne' method
+  async findOne(id: number) {
+    // Implement logic for retrieving a specific payment by id
+    return { message: `Payment with ID ${id} retrieved successfully` };
+  }
+
+  // Add 'update' method
+  async update(id: number, updatePaymentDto: UpdatePaymentDto) {
+    // Implement logic for updating a specific payment
+    return { message: `Payment with ID ${id} updated successfully`, update: updatePaymentDto };
+  }
+
+  // Add 'remove' method
+  async remove(id: number) {
+    // Implement logic for removing a specific payment
+    return { message: `Payment with ID ${id} removed successfully` };
   }
 }

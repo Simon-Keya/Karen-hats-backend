@@ -1,18 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class WebsocketsService {
-  private activeClients: Map<string, string> = new Map();
+  constructor(private readonly jwtService: JwtService) {}
 
-  addClient(clientId: string, userId: string) {
-    this.activeClients.set(clientId, userId);
+  // Method to generate a JWT token for a given user ID
+  generateToken(userId: string): string {
+    return this.jwtService.sign({ userId });
   }
 
-  removeClient(clientId: string) {
-    this.activeClients.delete(clientId);
-  }
-
-  getUserIdByClientId(clientId: string): string | undefined {
-    return this.activeClients.get(clientId);
+  // Method to validate a JWT token and return the decoded payload
+  validateToken(token: string): any {
+    try {
+      return this.jwtService.verify(token);
+    } catch (error) {
+      throw new Error('Invalid token');
+    }
   }
 }

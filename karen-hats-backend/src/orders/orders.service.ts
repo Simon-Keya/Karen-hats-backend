@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto'; // Ensure this DTO is created
 import { Order } from './entity/order.entity';
 
 @Injectable()
@@ -11,8 +13,11 @@ export class OrdersService {
   ) {}
 
   // Create a new order
-  createOrder(orderData: Partial<Order>) {
-    const order = this.orderRepository.create(orderData);
+  async createOrder(orderData: CreateOrderDto): Promise<Order> {
+    const order = this.orderRepository.create({
+      ...orderData,
+      createdAt: new Date(),
+    });
     return this.orderRepository.save(order);
   }
 
@@ -25,27 +30,20 @@ export class OrdersService {
     return order;
   }
 
-  // Update the tracking number of an order
-  async updateOrderTracking(orderId: number, trackingNumber: string): Promise<Order> {
-    const order = await this.findOne(orderId);
-    order.trackingNumber = trackingNumber;
-    return this.orderRepository.save(order);
+  // Retrieve all orders
+  async findAll(): Promise<Order[]> {
+    return this.orderRepository.find();
   }
 
-  // Retrieve all orders for a specific user by user ID
-  async findAllOrders(userId: number): Promise<Order[]> {
-    return this.orderRepository.find({ where: { user: { id: userId } } });
-  }
-
-  // Update the status of an order
-  async updateOrderStatus(orderId: number, status: string): Promise<Order> {
+  // Update an order
+  async update(orderId: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.findOne(orderId);
-    order.status = status;
-    return this.orderRepository.save(order);
+    const updatedOrder = Object.assign(order, updateOrderDto);
+    return this.orderRepository.save(updatedOrder);
   }
 
   // Delete an order by its ID
-  async deleteOrder(orderId: number): Promise<void> {
+  async remove(orderId: number): Promise<void> {
     const result = await this.orderRepository.delete(orderId);
     if (result.affected === 0) {
       throw new NotFoundException(`Order with ID ${orderId} not found`);
