@@ -38,14 +38,6 @@ export class ProductsService {
       query.andWhere('product.price <= :maxPrice', { maxPrice: filter.maxPrice });
     }
 
-    // Filter by category
-    if (filter.category) {
-      query.andWhere('product.category = :category', { category: filter.category });
-    }
-
-    // Sort by creation date if needed (example of sorting)
-    query.orderBy('product.createdAt', 'DESC');
-
     return query.getMany();
   }
 

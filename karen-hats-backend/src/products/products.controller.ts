@@ -25,18 +25,18 @@ export class ProductsController {
   // Get a single product by ID
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+    return this.productsService.findOne(+id); // Convert id to number
   }
 
   // Update a product by ID
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
+    return this.productsService.update(+id, updateProductDto); // Convert id to number
   }
 
   // Delete a product by ID
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+    return this.productsService.remove(+id); // Convert id to number
   }
 }

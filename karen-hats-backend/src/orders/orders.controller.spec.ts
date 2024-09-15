@@ -9,10 +9,10 @@ describe('OrdersController', () => {
 
   const mockOrdersService = {
     createOrder: jest.fn((dto) => Promise.resolve({ id: 1, ...dto })),
-    findAllOrders: jest.fn(() => Promise.resolve([{ id: 1, productIds: [1], totalAmount: 100, status: 'Pending', customerName: 'John', address: '123 Street' }])),
+    findAllOrdersByUser: jest.fn(() => Promise.resolve([{ id: 1, productIds: [1], totalAmount: 100, status: 'Pending', customerName: 'John', address: '123 Street' }])), // Updated method name
     findOne: jest.fn((id) => Promise.resolve({ id, productIds: [1], totalAmount: 100, status: 'Pending', customerName: 'John', address: '123 Street' })),
-    updateOrderStatus: jest.fn((id, status) => Promise.resolve({ id, status })),
-    deleteOrder: jest.fn((id) => Promise.resolve({ id })),
+    updateStatus: jest.fn((id, status) => Promise.resolve({ id, status })), // Updated method name
+    remove: jest.fn((id) => Promise.resolve({ id })), // Updated method name
   };
 
   beforeEach(async () => {
@@ -50,7 +50,7 @@ describe('OrdersController', () => {
     it('should return all orders', async () => {
       const result = await ordersController.findAllOrders('1');
       expect(result).toEqual([{ id: 1, productIds: [1], totalAmount: 100, status: 'Pending', customerName: 'John', address: '123 Street' }]);
-      expect(mockOrdersService.findAllOrders).toHaveBeenCalled();
+      expect(mockOrdersService.findAllOrdersByUser).toHaveBeenCalled(); // Updated method name
     });
   });
 
@@ -67,7 +67,7 @@ describe('OrdersController', () => {
       const status = 'shipped'; // String for the status
       const result = await ordersController.updateOrderStatus('1', status);
       expect(result).toEqual({ id: 1, status });
-      expect(mockOrdersService.updateOrderStatus).toHaveBeenCalledWith(1, status);
+      expect(mockOrdersService.updateStatus).toHaveBeenCalledWith(1, status); // Updated method name
     });
   });
 
@@ -75,7 +75,7 @@ describe('OrdersController', () => {
     it('should remove an order', async () => {
       const result = await ordersController.deleteOrder('1');
       expect(result).toEqual({ id: 1 });
-      expect(mockOrdersService.deleteOrder).toHaveBeenCalledWith(1);
+      expect(mockOrdersService.remove).toHaveBeenCalledWith(1); // Updated method name
     });
   });
 });

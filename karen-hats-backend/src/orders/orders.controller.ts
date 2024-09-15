@@ -16,19 +16,19 @@ export class OrdersController {
   // Update the tracking number for a specific order
   @Patch(':id/tracking')
   async updateTracking(@Param('id') id: string, @Body('trackingNumber') trackingNumber: string) {
-    return this.ordersService.updateOrderTracking(+id, trackingNumber);
+    return this.ordersService.updateTracking(+id, trackingNumber); // Updated method name
   }
 
   // Get all orders for a specific user by user ID
   @Get('user/:userId')
   async findAllOrders(@Param('userId') userId: string) {
-    return this.ordersService.findAllOrders(+userId);
+    return this.ordersService.findAllOrdersByUser(+userId); // Updated method name
   }
 
   // Update the status of a specific order
   @Patch(':id/status')
   async updateOrderStatus(@Param('id') id: string, @Body('status') status: string) {
-    return this.ordersService.updateOrderStatus(+id, status);
+    return this.ordersService.updateStatus(+id, status); // Updated method name
   }
 
   // Get a single order by its ID
@@ -40,6 +40,6 @@ export class OrdersController {
   // Delete an order by its ID
   @Delete(':id')
   async deleteOrder(@Param('id') id: string) {
-    return this.ordersService.deleteOrder(+id);
+    return this.ordersService.remove(+id); // Updated method name
   }
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('orders')
@@ -6,7 +6,7 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.orders, { eager: true }) // Eager loading the user
+  @ManyToOne(() => User, (user) => user.orders, { eager: true }) // Eager loading the user
   user: User;
 
   @Column('int', { array: true }) // Assuming productIds is an array of product IDs
@@ -21,10 +21,9 @@ export class Order {
   @Column({ nullable: true }) // Tracking number can be nullable initially
   trackingNumber: string;
 
-  @Column({ default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' }) // Automatically set creation timestamp
   createdAt: Date;
 
-  // Optional: If you want to store updated timestamps
-  @Column({ nullable: true })
-  updatedAt: Date; // Add an updatedAt field for tracking changes
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' }) // Automatically set update timestamp
+  updatedAt: Date;
 }

@@ -1,18 +1,28 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from '../users/users.service'; // Correct the import here
+import { getRepositoryToken } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { Repository } from 'typeorm';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { User } from './entities/user.entity';
 
 describe('AuthService', () => {
   let authService: AuthService;
-  let userService: UsersService; // Change type to UsersService
+  let userRepository: Repository<User>;
   let jwtService: JwtService;
 
-  const mockUserService = {
-    findByEmail: jest.fn((username: string) => Promise.resolve({ username })), // Use username instead of email
-    create: jest.fn((dto: RegisterDto) => Promise.resolve({ id: 1, ...dto })),
+  const mockUserRepository = {
+    create: jest.fn((dto: RegisterDto) => ({ id: 1, ...dto })),
+    save: jest.fn((user: User) => Promise.resolve({ id: 1, username: user.username, email: user.email })),
+    findOne: jest.fn((options: any) => {
+      if (options.where.username === 'testuser') {
+        return Promise.resolve({ id: 1, username: 'testuser', password: bcrypt.hashSync('test123', 10) });
+      }
+      return Promise.resolve(null);
+    }),
   };
 
   const mockJwtService = {
@@ -24,8 +34,8 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         {
-          provide: UsersService, // Change to UsersService here as well
-          useValue: mockUserService,
+          provide: getRepositoryToken(User),
+          useValue: mockUserRepository,
         },
         {
           provide: JwtService,
@@ -35,25 +45,45 @@ describe('AuthService', () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
-    userService = module.get<UsersService>(UsersService); // Change type to UsersService
+    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     jwtService = module.get<JwtService>(JwtService);
   });
 
   describe('login', () => {
     it('should return an access token', async () => {
-      const dto: LoginDto = { username: 'testuser', password: 'test123' }; // Use username here
+      const dto: LoginDto = { username: 'testuser', password: 'test123' };
+      const user = await mockUserRepository.findOne({ where: { username: dto.username } });
+
+      // Validate password (mock bcrypt comparison)
+      const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
       const result = await authService.login(dto);
       expect(result).toEqual({ accessToken: 'mockAccessToken' });
-      expect(userService.findByEmail).toHaveBeenCalledWith(dto.username); // Update this line to use username
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({ where: { username: dto.username } });
     });
   });
 
   describe('register', () => {
     it('should register a user', async () => {
-      const dto: RegisterDto = { username: 'testuser', password: 'test123', email: 'test@example.com' }; // Include username
+      const dto: RegisterDto = { username: 'testuser', password: 'test123', email: 'test@example.com' };
+      
+      // Register the user and expect the password to be removed from the result.
       const result = await authService.register(dto);
-      expect(result).toEqual({ id: 1, username: dto.username, email: dto.email }); // Ensure username is included in the expected result
-      expect(userService.create).toHaveBeenCalledWith(dto);
+      
+      // Expected result should not contain the password.
+      const expectedUser = { id: 1, username: dto.username, email: dto.email };
+
+      // Validate the result and ensure password is excluded
+      expect(result).toEqual(expectedUser);
+      expect(mockUserRepository.save).toHaveBeenCalledWith(expect.objectContaining({
+        username: dto.username,
+        email: dto.email,
+        password: dto.password,
+      }));
     });
   });
 });

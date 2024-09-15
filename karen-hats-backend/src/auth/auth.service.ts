@@ -31,7 +31,6 @@ export class AuthService {
     };
   }
 
-  // This method validates user by username and password
   async validateUserByCredentials(username: string, password: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { username } });
     if (user && (await compare(password, user.password))) {
@@ -40,7 +39,6 @@ export class AuthService {
     throw new UnauthorizedException('Invalid credentials');
   }
 
-  // This method validates user by the JWT payload
   async validateUserByPayload(payload: JwtPayload): Promise<User> {
     const user = await this.userRepository.findOne({ where: { username: payload.username } });
     if (user) {

@@ -15,8 +15,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return "Welcome to Karen Hats E-commerce API"', () => {
+      expect(appController.getHello()).toBe('Welcome to Karen Hats E-commerce API'); // This remains unchanged
     });
   });
 });

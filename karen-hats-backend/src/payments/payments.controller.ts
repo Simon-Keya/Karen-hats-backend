@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaymentsService } from './payments.service';
@@ -9,38 +9,57 @@ import { PaymentsService } from './payments.service';
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
+  // Process Mpesa payment
+  @ApiOperation({ summary: 'Process Mpesa payment' })
+  @ApiResponse({ status: 201, description: 'Mpesa payment processed successfully' })
+  @ApiResponse({ status: 404, description: 'Order not found' })
   @Post('mpesa/:orderId')
+  @HttpCode(HttpStatus.OK) // Custom status code for successful Mpesa processing
   async processMpesaPayment(
     @Param('orderId') orderId: string,
     @Body('phoneNumber') phoneNumber: string,
     @Body('amount') amount: number,
   ) {
-    // Ensure orderId is converted to a number for the service
+    // Convert orderId to a number and call the service to process the payment
     return this.paymentsService.processMpesaPayment(Number(orderId), phoneNumber, amount);
   }
 
-  // Add 'create' method
+  // Create a new payment
+  @ApiOperation({ summary: 'Create a new payment' })
+  @ApiResponse({ status: 201, description: 'Payment created successfully' })
   @Post()
-  create(@Body() createPaymentDto: CreatePaymentDto) {
+  @HttpCode(HttpStatus.CREATED) // Ensure that a 201 status is returned for creation
+  async create(@Body() createPaymentDto: CreatePaymentDto) {
     return this.paymentsService.create(createPaymentDto);
   }
 
-  // Add 'findAll' method
+  // Retrieve all payments
+  @ApiOperation({ summary: 'Retrieve all payments' })
+  @ApiResponse({ status: 200, description: 'Payments retrieved successfully' })
   @Get()
-  findAll() {
+  @HttpCode(HttpStatus.OK)
+  async findAll() {
     return this.paymentsService.findAll();
   }
 
-  // Add 'findOne' method
+  // Retrieve a specific payment by ID
+  @ApiOperation({ summary: 'Retrieve a specific payment by ID' })
+  @ApiResponse({ status: 200, description: 'Payment retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Payment not found' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  @HttpCode(HttpStatus.OK)
+  async findOne(@Param('id') id: string) {
     // Convert 'id' to a number
     return this.paymentsService.findOne(+id);
   }
 
-  // Add 'update' method
+  // Update a specific payment
+  @ApiOperation({ summary: 'Update a specific payment' })
+  @ApiResponse({ status: 200, description: 'Payment updated successfully' })
+  @ApiResponse({ status: 404, description: 'Payment not found' })
   @Patch(':id')
-  update(
+  @HttpCode(HttpStatus.OK)
+  async update(
     @Param('id') id: string, 
     @Body() updatePaymentDto: UpdatePaymentDto
   ) {
@@ -48,9 +67,13 @@ export class PaymentsController {
     return this.paymentsService.update(+id, updatePaymentDto);
   }
 
-  // Add 'remove' method
+  // Remove a specific payment
+  @ApiOperation({ summary: 'Remove a specific payment' })
+  @ApiResponse({ status: 200, description: 'Payment removed successfully' })
+  @ApiResponse({ status: 404, description: 'Payment not found' })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  @HttpCode(HttpStatus.OK)
+  async remove(@Param('id') id: string) {
     // Convert 'id' to a number
     return this.paymentsService.remove(+id);
   }

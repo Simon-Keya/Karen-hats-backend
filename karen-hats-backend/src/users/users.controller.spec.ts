@@ -6,7 +6,6 @@ import { UsersService } from './users.service';
 
 describe('UsersController', () => {
   let usersController: UsersController;
-  let usersService: UsersService;
 
   const mockUsersService = {
     create: jest.fn((dto: CreateUserDto) => ({
@@ -17,15 +16,15 @@ describe('UsersController', () => {
       { id: 1, email: 'test1@example.com' },
       { id: 2, email: 'test2@example.com' },
     ]),
-    findOne: jest.fn((id: string) => ({
+    findOne: jest.fn((id: number) => ({
       id,
       email: 'test@example.com',
     })),
-    update: jest.fn((id: string, dto: UpdateUserDto) => ({
+    update: jest.fn((id: number, dto: UpdateUserDto) => ({
       id,
       ...dto,
     })),
-    remove: jest.fn((id: string) => ({ id })),
+    remove: jest.fn((id: number) => ({ id })),
   };
 
   beforeEach(async () => {
@@ -38,12 +37,10 @@ describe('UsersController', () => {
       .compile();
 
     usersController = module.get<UsersController>(UsersController);
-    usersService = module.get<UsersService>(UsersService);
   });
 
   describe('create', () => {
     it('should create a user', async () => {
-      // Include the 'username' property in the CreateUserDto
       const dto: CreateUserDto = { username: 'testuser', email: 'test@example.com', password: 'test123' };
       const result = await usersController.create(dto);
       expect(result).toEqual({ id: 1, ...dto });
@@ -64,29 +61,26 @@ describe('UsersController', () => {
 
   describe('findOne', () => {
     it('should return a user by ID', async () => {
-      // Convert the ID to a string as expected by the service
-      const result = await usersController.findOne('1');
-      expect(result).toEqual({ id: '1', email: 'test@example.com' });
-      expect(mockUsersService.findOne).toHaveBeenCalledWith('1');
+      const result = await usersController.findOne('1'); // Keep id as string in controller
+      expect(result).toEqual({ id: 1, email: 'test@example.com' }); // Expected object with correct id
+      expect(mockUsersService.findOne).toHaveBeenCalledWith(1); // Ensure service is called with number
     });
   });
 
   describe('update', () => {
     it('should update a user', async () => {
       const dto: UpdateUserDto = { email: 'updated@example.com' };
-      // Convert the ID to a string
-      const result = await usersController.update('1', dto);
-      expect(result).toEqual({ id: '1', ...dto });
-      expect(mockUsersService.update).toHaveBeenCalledWith('1', dto);
+      const result = await usersController.update('1', dto); // Keep as string for controller but convert in service
+      expect(result).toEqual({ id: 1, ...dto }); // Match as number
+      expect(mockUsersService.update).toHaveBeenCalledWith(1, dto); // Match as number
     });
   });
 
   describe('remove', () => {
     it('should remove a user', async () => {
-      // Convert the ID to a string
-      const result = await usersController.remove('1');
-      expect(result).toEqual({ id: '1' });
-      expect(mockUsersService.remove).toHaveBeenCalledWith('1');
+      const result = await usersController.remove('1'); // Keep as string for controller but convert in service
+      expect(result).toEqual({ message: 'User with ID 1 has been deleted successfully' }); // Match expected message
+      expect(mockUsersService.remove).toHaveBeenCalledWith(1); // Match as number
     });
   });
 });
